@@ -9,6 +9,7 @@ import { Textarea } from "~/components/ui/textarea";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/tabs";
 import SampleAddressAbiCard from "./sampleAddressAbiCard";
 import { Button } from "~/components/ui/button";
+import { Switch } from "~/components/ui/switch";
 
 import { ZodError } from "zod";
 import { useMutation } from "@tanstack/react-query";
@@ -20,6 +21,7 @@ import generateFromERC7730 from "./generateFromERC7730";
 const CardErc7730 = () => {
   const [input, setInput] = useState("");
   const [inputType, setInputType] = useState<"address" | "abi">("address");
+  const [autoMode, setAutoMode] = useState(false);
   const { setErc7730 } = useErc7730Store((state) => state);
   const router = useRouter();
 
@@ -32,6 +34,7 @@ const CardErc7730 = () => {
       generateFromERC7730({
         input,
         inputType,
+        autoMode,
       }),
   });
 
@@ -88,6 +91,16 @@ const CardErc7730 = () => {
             </div>
           </TabsContent>
         </Tabs>
+        
+        <div className="flex items-center space-x-2">
+          <Switch
+            id="auto-mode"
+            checked={autoMode}
+            onCheckedChange={setAutoMode}
+          />
+          <Label htmlFor="auto-mode">Auto Mode (AI-powered)</Label>
+        </div>
+        
         <Button type="submit" disabled={loading}>
           Submit
         </Button>
