@@ -31,6 +31,7 @@ class Props(BaseModel):
     abi: str | None = None
     address: str | None = None
     chain_id: int | None = None
+    auto: bool = False
 
 @app.post("/api/py/generateERC7730", response_model=InputERC7730Descriptor, responses={400: {"model": Message}})
 def run_erc7730(params: Props):
@@ -46,13 +47,15 @@ def run_erc7730(params: Props):
             result = generate_descriptor(
                 chain_id=chain_id,
                 contract_address='0xdeadbeef00000000000000000000000000000000', # because it's mandatory mock address see with laurent
-                abi=params.abi
+                abi=params.abi,
+                auto=params.auto
             )
        
         if (params.address):
             result = generate_descriptor(
                 chain_id=chain_id,
-                contract_address=params.address
+                contract_address=params.address,
+                auto=params.auto
             )
             
         if result is None:
