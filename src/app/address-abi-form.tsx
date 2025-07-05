@@ -4,7 +4,7 @@ import { Input } from "~/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
 import { Label } from "~/components/ui/label";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Textarea } from "~/components/ui/textarea";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/tabs";
 import SampleAddressAbiCard from "./sampleAddressAbiCard";
@@ -50,11 +50,24 @@ const CHAIN_OPTIONS = [
   { value: "10200", label: "Gnosis Testnet" },
 ];
 
+const AI_LOADING_MESSAGES = [
+  "🤖 AI is reading the contract...",
+  "🔍 Analyzing function signatures...",
+  "🧠 Understanding parameter types...",
+  "✨ Generating human-readable labels...",
+  "🎨 Crafting beautiful display formats...",
+  "🔗 Connecting to blockchain data...",
+  "📝 Writing clear signing descriptions...",
+  "🚀 Almost ready for review...",
+];
+
 const CardErc7730 = () => {
   const [input, setInput] = useState("");
   const [inputType, setInputType] = useState<"address" | "abi">("address");
   const [autoMode, setAutoMode] = useState(false);
   const [chainId, setChainId] = useState("1");
+  const [aiLoadingMessage, setAiLoadingMessage] = useState("");
+  const [messageIndex, setMessageIndex] = useState(0);
   const { setErc7730, setMetadata, setOperationData } = useErc7730Store((state) => state);
   const { setValidateOperation } = useFunctionStore();
   const router = useRouter();
@@ -123,6 +136,29 @@ const CardErc7730 = () => {
         chainId: parseInt(chainId),
       }),
   });
+
+  // AI loading message cycling effect
+  useEffect(() => {
+    let interval: NodeJS.Timeout;
+    if (loading && autoMode) {
+      setAiLoadingMessage(AI_LOADING_MESSAGES[0]);
+      setMessageIndex(0);
+      
+      interval = setInterval(() => {
+        setMessageIndex((prev) => {
+          const nextIndex = (prev + 1) % AI_LOADING_MESSAGES.length;
+          setAiLoadingMessage(AI_LOADING_MESSAGES[nextIndex]);
+          return nextIndex;
+        });
+      }, 2000); // Change message every 2 seconds
+    } else {
+      setAiLoadingMessage("");
+    }
+
+    return () => {
+      if (interval) clearInterval(interval);
+    };
+  }, [loading, autoMode]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -234,8 +270,39 @@ const CardErc7730 = () => {
         </div>
 
         <Button type="submit" disabled={loading}>
-          Submit
+          {loading && autoMode ? (
+            <div className="flex items-center space-x-2">
+              <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-current"></div>
+              <span>AI Working...</span>
+            </div>
+          ) : loading ? (
+            <div className="flex items-center space-x-2">
+              <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-current"></div>
+              <span>Loading...</span>
+            </div>
+          ) : (
+            "Submit"
+          )}
         </Button>
+
+        {/* AI Loading Messages */}
+        {loading && autoMode && aiLoadingMessage && (
+          <div className="mt-4 p-3 bg-blue-50 dark:bg-blue-950/20 border border-blue-200 dark:border-blue-800/30 rounded-lg animate-in fade-in duration-300">
+            <div className="flex items-center space-x-3">
+              <div className="flex space-x-1">
+                <div className="w-2 h-2 bg-blue-500 rounded-full animate-bounce"></div>
+                <div className="w-2 h-2 bg-blue-500 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
+                <div className="w-2 h-2 bg-blue-500 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
+              </div>
+              <span className="text-sm text-blue-700 dark:text-blue-300 font-medium transition-all duration-500">
+                {aiLoadingMessage}
+              </span>
+            </div>
+            <div className="mt-2 text-xs text-blue-600 dark:text-blue-400">
+              This might take a moment while the AI analyzes your contract...
+            </div>
+          </div>
+        )}
       </form>
 
       <SampleAddressAbiCard setInput={setInput} inputType={inputType} />
