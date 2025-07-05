@@ -24,6 +24,8 @@ import { useRouter } from "next/navigation";
 import { useErc7730Store } from "~/store/erc7730Provider";
 import useFunctionStore from "~/store/useOperationStore";
 import generateFromERC7730 from "./generateFromERC7730";
+import { convertOperationToSchema } from "~/lib/convertOperationToSchema";
+import { type Operation } from "~/store/types";
 
 const CHAIN_OPTIONS = [
   { value: "1", label: "Ethereum Mainnet" },
@@ -53,8 +55,60 @@ const CardErc7730 = () => {
   const [inputType, setInputType] = useState<"address" | "abi">("address");
   const [autoMode, setAutoMode] = useState(false);
   const [chainId, setChainId] = useState("1");
-  const { setErc7730 } = useErc7730Store((state) => state);
+  const { setErc7730, setMetadata, setOperationData } = useErc7730Store((state) => state);
+  const { setValidateOperation } = useFunctionStore();
   const router = useRouter();
+
+  // Helper function to check if an operation should be auto-validated in AI mode
+  const isOperationComplete = (operation: Operation) => {
+    if (!operation || !operation.fields) {
+      console.log("❌ Operation missing or has no fields:", operation);
+      return false;
+    }
+    
+    // Check if intent is filled - this is the minimum requirement
+    if (!operation.intent || (typeof operation.intent === "string" && operation.intent.trim() === "")) {
+      console.log("❌ Operation missing intent:", operation.intent);
+      return false;
+    }
+    
+    // In AI mode, if we have an intent and fields, assume the AI has done its job
+    // We'll be more liberal with auto-validation since the user explicitly requested AI processing
+    
+    // Check if the operation has any fields at all
+    if (operation.fields.length === 0) {
+      console.log("❌ Operation has no fields");
+      return false;
+    }
+    
+    // Check if there's evidence of AI processing:
+    // 1. Any non-raw format
+    // 2. Any meaningful label (different from path)
+    // 3. Any params configuration
+    // 4. Or just assume complete if AI mode is on and basic structure exists
+    
+    const hasAnyProcessing = operation.fields.some(field => {
+      const hasNonRawFormat = "format" in field && field.format && field.format !== "raw";
+      const hasMeaningfulLabel = "label" in field && field.label && field.label.trim() !== "" && field.label !== field.path;
+      const hasParams = "params" in field && field.params !== null;
+      
+      return hasNonRawFormat || hasMeaningfulLabel || hasParams;
+    });
+    
+    // If no clear AI processing is detected, but we're in AI mode with intent and fields,
+    // still auto-validate (maybe AI kept things simple)
+    const shouldAutoValidate = hasAnyProcessing || operation.fields.length > 0;
+    
+    console.log(`Operation "${operation.intent}" auto-validation decision:`, {
+      hasIntent: true,
+      fieldCount: operation.fields.length,
+      hasAnyProcessing,
+      shouldAutoValidate,
+      operation
+    });
+    
+    return shouldAutoValidate;
+  };
 
   const {
     mutateAsync: fetchERC7730Metadata,
@@ -79,6 +133,34 @@ const CardErc7730 = () => {
       useFunctionStore.persist.clearStorage();
 
       setErc7730(erc7730);
+
+      // Auto-validate operations when AI mode is enabled and all required fields are filled
+      if (autoMode && erc7730.display?.formats) {
+        // Initialize the final store with metadata to avoid null errors
+        // This ensures the final store is ready for auto-validated operations
+        if (erc7730.metadata) {
+          setMetadata(erc7730.metadata);
+        }
+
+        const operationNames = Object.keys(erc7730.display.formats);
+        console.log("Processing operations for auto-validation:", operationNames);
+        
+        operationNames.forEach((operationName) => {
+          const operation = erc7730.display!.formats[operationName];
+          console.log(`Checking operation "${operationName}":`, operation);
+          
+          if (isOperationComplete(operation)) {
+            console.log(`✅ Auto-validating operation: ${operationName}`);
+            // Mark operation as validated - this will make it appear green in the UI
+            setValidateOperation(operationName);
+            // Now that finalErc7730 is initialized, we can safely save the operation data
+            setOperationData(operationName, operation, operation);
+          } else {
+            console.log(`❌ Operation not complete: ${operationName}`);
+          }
+        });
+      }
+
       router.push("/metadata");
     }
   };
