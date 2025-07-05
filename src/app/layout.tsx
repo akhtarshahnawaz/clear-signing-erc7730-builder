@@ -11,12 +11,12 @@ import GoogleTagManager from "~/components/scripts/googleTagManager";
 import Script from "next/script";
 
 export const metadata: Metadata = {
-  title: "Create Erc7730 Json",
-  description: "Clear sign all the things",
+  title: "ERC7730 Builder - EthGlobal Cannes by Akuti",
+  description: "Clear sign all the things - Built for EthGlobal Cannes by Akuti",
   icons: [{ rel: "icon", url: "/ledger-logo-short-black.svg" }],
   openGraph: {
-    title: "Create Erc7730 Json",
-    description: "Clear sign all the things",
+    title: "ERC7730 Builder - EthGlobal Cannes by Akuti",
+    description: "Clear sign all the things - Built for EthGlobal Cannes by Akuti",
     images: [
       {
         url: "/openGraphImage.png",
