@@ -24,7 +24,7 @@ import { useRouter } from "next/navigation";
 import { useErc7730Store } from "~/store/erc7730Provider";
 import useFunctionStore from "~/store/useOperationStore";
 import generateFromERC7730 from "./generateFromERC7730";
-import { convertOperationToSchema } from "~/lib/convertOperationToSchema";
+// import { convertOperationToSchema } from "~/lib/convertOperationToSchema";
 import { type Operation } from "~/store/types";
 
 const CHAIN_OPTIONS = [
@@ -112,7 +112,7 @@ const CardErc7730 = () => {
     // still auto-validate (maybe AI kept things simple)
     const shouldAutoValidate = hasAnyProcessing || operation.fields.length > 0;
     
-    console.log(`Operation "${operation.intent}" auto-validation decision:`, {
+    console.log(`Operation "${String(operation.intent)}" auto-validation decision:`, {
       hasIntent: true,
       fieldCount: operation.fields.length,
       hasAnyProcessing,
@@ -141,13 +141,13 @@ const CardErc7730 = () => {
   useEffect(() => {
     let interval: NodeJS.Timeout;
     if (loading && autoMode) {
-      setAiLoadingMessage(AI_LOADING_MESSAGES[0]);
+      setAiLoadingMessage(AI_LOADING_MESSAGES[0] ?? "🤖 AI is processing...");
       setMessageIndex(0);
       
       interval = setInterval(() => {
         setMessageIndex((prev) => {
           const nextIndex = (prev + 1) % AI_LOADING_MESSAGES.length;
-          setAiLoadingMessage(AI_LOADING_MESSAGES[nextIndex]);
+          setAiLoadingMessage(AI_LOADING_MESSAGES[nextIndex] ?? "🤖 AI is processing...");
           return nextIndex;
         });
       }, 2000); // Change message every 2 seconds
@@ -185,7 +185,7 @@ const CardErc7730 = () => {
           const operation = erc7730.display!.formats[operationName];
           console.log(`Checking operation "${operationName}":`, operation);
           
-          if (isOperationComplete(operation)) {
+          if (operation && isOperationComplete(operation)) {
             console.log(`✅ Auto-validating operation: ${operationName}`);
             // Mark operation as validated - this will make it appear green in the UI
             setValidateOperation(operationName);

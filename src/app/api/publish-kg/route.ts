@@ -166,11 +166,16 @@ export async function POST(request: NextRequest) {
 
     // Send transaction - exactly like hardhat plugin
     console.log('🚀 Sending transaction...');
+    if (!walletClient.account) {
+      throw new Error('Wallet client account is not available');
+    }
+    
     const txResult = await walletClient.sendTransaction({
       account: walletClient.account,
       to: to as `0x${string}`,
       value: 0n,
       data: data as `0x${string}`,
+      chain: null,
     });
 
     console.log(`✅ Transaction sent: ${txResult}`);

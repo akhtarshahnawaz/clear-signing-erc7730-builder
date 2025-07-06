@@ -16,12 +16,12 @@ export default async function generateERC7730({
   autoMode: boolean;
   chainId: number;
 }): Promise<GenerateResponse | null> {
-  const body: GenerateBody = {
+  const body = {
     address: inputType === "address" ? input : undefined,
     abi: inputType === "abi" ? input : undefined,
     auto: autoMode,
     chain_id: chainId,
-  };
+  } as GenerateBody & { auto: boolean };
 
   const response = await fetch("/api/py/generateERC7730", {
     method: "POST",
