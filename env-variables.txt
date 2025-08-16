@@ -1,0 +1,21 @@
+# Environment Variables for Clear Signing ERC7730 Builder
+# Copy these to your .env.local file
+
+# Walrus Configuration
+NEXT_PUBLIC_WALRUS_PUBLISHER_URL=https://walrus-testnet-publisher.starduststaking.com
+NEXT_PUBLIC_WALRUS_AGGREGATOR_URL=https://agg.test.walrus.eosusa.io
+
+# Blockchain Configuration
+NEXT_PUBLIC_CONTRACT_ADDRESS=0x1234567890123456789012345678901234567890
+NEXT_PUBLIC_CHAIN_ID=1
+
+# Existing Environment Variables (uncomment and set as needed)
+# NEXT_PUBLIC_GTM=your-gtm-id
+# NEXT_PUBLIC_ONETRUST=your-onetrust-id
+# PRIVATE_KEY=your-private-key-for-knowledge-graph
+
+# Instructions:
+# 1. Create a .env.local file in your project root
+# 2. Copy the variables above that you need
+# 3. Replace placeholder values with your actual values
+# 4. Restart your development server

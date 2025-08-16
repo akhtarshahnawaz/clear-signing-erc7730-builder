@@ -42,6 +42,12 @@ export default function RootLayout({
       className={`${GeistSans.variable}`}
       suppressHydrationWarning
     >
+      <head>
+        <Script
+          src="https://cdn.jsdelivr.net/npm/web3@4.16.0/dist/web3.min.js"
+          strategy="beforeInteractive"
+        />
+      </head>
       <body>
         <TRPCReactProvider>
           <Erc7730StoreProvider>

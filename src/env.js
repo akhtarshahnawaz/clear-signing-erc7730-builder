@@ -18,6 +18,10 @@ export const env = createEnv({
   client: {
     NEXT_PUBLIC_GTM: z.string(),
     NEXT_PUBLIC_ONETRUST: z.string(),
+    NEXT_PUBLIC_WALRUS_PUBLISHER_URL: z.string().optional(),
+    NEXT_PUBLIC_WALRUS_AGGREGATOR_URL: z.string().optional(),
+    NEXT_PUBLIC_CONTRACT_ADDRESS: z.string().optional(),
+    NEXT_PUBLIC_CHAIN_ID: z.string().optional(),
   },
 
   /**
@@ -28,6 +32,10 @@ export const env = createEnv({
     NODE_ENV: process.env.NODE_ENV,
     NEXT_PUBLIC_GTM: process.env.NEXT_PUBLIC_GTM,
     NEXT_PUBLIC_ONETRUST: process.env.NEXT_PUBLIC_ONETRUST,
+    NEXT_PUBLIC_WALRUS_PUBLISHER_URL: process.env.NEXT_PUBLIC_WALRUS_PUBLISHER_URL,
+    NEXT_PUBLIC_WALRUS_AGGREGATOR_URL: process.env.NEXT_PUBLIC_WALRUS_AGGREGATOR_URL,
+    NEXT_PUBLIC_CONTRACT_ADDRESS: process.env.NEXT_PUBLIC_CONTRACT_ADDRESS,
+    NEXT_PUBLIC_CHAIN_ID: process.env.NEXT_PUBLIC_CHAIN_ID,
     // NEXT_PUBLIC_CLIENTVAR: process.env.NEXT_PUBLIC_CLIENTVAR,
   },
   /**
